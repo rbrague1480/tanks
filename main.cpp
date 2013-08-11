@@ -157,7 +157,7 @@ void gameSetup(){
 	
 	if (bull != NULL){
 		delete bull;
-		bull = NULL;
+		bull = NULL; //this is fun
 	}
 	
 	
