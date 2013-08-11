@@ -23,7 +23,7 @@ struct color {
 	float b;
 };
 
-color mainStartColor, mainEndColor, mainOptionsColor; 
+color mainStartColor, mainEndColor, mainOptionsColor, pauseResumeColor, pauseResetColor, pauseMainMenuColor; 
 
 
 menu menuType = mainMenu;
@@ -36,6 +36,10 @@ char info[50];
 char mainStart[13] = "Start Game \0";
 char mainEnd[7] = "Quit \0";
 char mainOptions[10] = "Options \0";
+char pauseResume[9] = "Resume \0";
+char pauseMainMenu[12] = "Main Menu \0";
+char pauseReset[15] = "Restart Game \0";
+
 int option = 2;
 
 
@@ -138,6 +142,7 @@ void changeSize(int w, int h) {
 
 void mainMenuSetup(){
 	menuType = mainMenu;
+	disp.font = GLUT_BITMAP_TIMES_ROMAN_24;
 	
 	disp.min.x = 0;
 	disp.max.x = 6;
@@ -172,8 +177,59 @@ void gameSetup(){
 }
 
 
-	
 
+void pauseMenuSetup(){
+	menuType = pauseMenu;
+	
+	option = 1;
+	
+}
+
+void drawPauseMenu(){
+	
+	/*
+	glLoadIdentity();
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glBegin(GL_QUADS);
+		glVertex2f(40.0f,70.0f);
+		glVertex2f(40.0f,30.0f);
+		glVertex2f(60.0f,30.0f);
+		glVertex2f(60.0f,70.0f);
+	glEnd();
+	*/
+	
+	
+	
+	pauseResumeColor.r = 1.0f;
+	pauseResumeColor.g = 1.0f;
+	pauseResumeColor.b = 1.0f;
+	pauseResetColor.r = 1.0f;
+	pauseResetColor.g = 1.0f;
+	pauseResetColor.b = 1.0f;
+	pauseMainMenuColor.r = 1.0f;
+	pauseMainMenuColor.g = 1.0f;
+	pauseMainMenuColor.b= 1.0f;
+	
+	if(option == 1){
+		pauseResumeColor.r = 1.0f;
+		pauseResumeColor.g = 0.0f;
+		pauseResumeColor.b = 0.0f;
+	}else if(option == 2){
+		pauseResetColor.r = 0.0f;
+		pauseResetColor.g = 1.0f;
+		pauseResetColor.b = 0.0f;
+	}else{
+		pauseMainMenuColor.r = 0.0f;
+		pauseMainMenuColor.g = 0.0f;
+		pauseMainMenuColor.b = 1.0f;
+	}
+	disp.text(45, 60, pauseResume, pauseResumeColor.r, pauseResumeColor.g, pauseResumeColor.b);
+	disp.text(42, 50, pauseReset, pauseResetColor.r, pauseResetColor.g, pauseResetColor.b);
+	disp.text(43, 40, pauseMainMenu, pauseMainMenuColor.r, pauseMainMenuColor.g, pauseMainMenuColor.b);
+	
+	
+	
+}
 
 void renderScene(void) {
 	switch (menuType){
@@ -183,31 +239,31 @@ void renderScene(void) {
 			glLoadIdentity();
 			
 			mainStartColor.r = 1.0f;
-			mainStartColor.b = 1.0f;
 			mainStartColor.g = 1.0f;
+			mainStartColor.b = 1.0f;
 			mainOptionsColor.r = 1.0f;
-			mainOptionsColor.b = 1.0f;
 			mainOptionsColor.g = 1.0f;
+			mainOptionsColor.b = 1.0f;
 			mainEndColor.r = 1.0f;
-			mainEndColor.b = 1.0f;
 			mainEndColor.g = 1.0f;
+			mainEndColor.b= 1.0f;
 			
 			if(option == 1){
-				mainStartColor.r = 0.0f;
-				mainStartColor.b = 1.0f;
-				mainStartColor.g = 0.0f;
+				mainStartColor.r = 1.0f;
+				mainStartColor.g = 1.0f;
+				mainStartColor.b = 0.0f;
 			}else if(option == 2){
-				mainOptionsColor.r = 0.0f;
-				mainOptionsColor.b = 1.0f;
-				mainOptionsColor.g = 0.0f;
+				mainOptionsColor.r = 1.0f;
+				mainOptionsColor.g = 1.0f;
+				mainOptionsColor.b = 0.0f;
 			}else{
-				mainEndColor.r = 0.0f;
-				mainEndColor.b = 1.0f;
-				mainEndColor.g = 0.0f;
+				mainEndColor.r = 1.0f;
+				mainEndColor.g = 1.0f;
+				mainEndColor.b = 0.0f;
 			}
-			disp.text(2, 7, mainStart, mainStartColor.r, mainStartColor.b, mainStartColor.g);
-			disp.text(2, 5, mainOptions, mainOptionsColor.r, mainOptionsColor.b, mainOptionsColor.g);
-			disp.text(2, 3, mainEnd, mainEndColor.r, mainEndColor.b, mainEndColor.g);
+			disp.text(2, 7, mainStart, mainStartColor.r, mainStartColor.g, mainStartColor.b);
+			disp.text(2, 5, mainOptions, mainOptionsColor.r, mainOptionsColor.g, mainOptionsColor.b);
+			disp.text(2, 3, mainEnd, mainEndColor.r, mainEndColor.g, mainEndColor.b);
 			
 			glutSwapBuffers();
 			
@@ -224,12 +280,41 @@ void renderScene(void) {
 			if (bull != NULL){
 				bull->drawBullet();
 			}
-			disp.text(5,90,info,1,1,1);
+			disp.text(5,90,info,1.0f,1.0f,1.0f);
 			
 			glutSwapBuffers();
 			
 			break;
 		case pauseMenu:
+			
+	
+			glClear(GL_COLOR_BUFFER_BIT);
+			disp.setOrthographicProjection();
+			glLoadIdentity();
+			
+			//Functions to draw objects
+			//drawPauseMenu();
+			glLoadIdentity();
+			glColor3f(0.0f, 0.0f, 1.0f);
+			glBegin(GL_QUADS);
+				glVertex2f(40.0f,70.0f);
+				glVertex2f(40.0f,30.0f);
+				glVertex2f(60.0f,30.0f);
+				glVertex2f(60.0f,70.0f);
+			glEnd();
+			
+			
+			//drawPauseMenu();
+			
+			drawTank();
+			if (bull != NULL){
+				bull->drawBullet();
+			}
+			disp.text(5,90,info,1.0f,1.0f,1.0f);
+			
+			drawPauseMenu();
+			
+			glutSwapBuffers();
 			
 			break;
 		}
@@ -246,10 +331,11 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					
 					break;
 				case game:
-					mainMenuSetup();
+					pauseMenuSetup();
 					break;
 				case pauseMenu:
-					
+					menuType = game;
+					timebase = glutGet(GLUT_ELAPSED_TIME);
 					break;
 			}
 			break;
@@ -358,7 +444,9 @@ void processSpecialKeys(int key, int x, int y) {
 					
 					break;
 				case pauseMenu:
-					
+					if (option > 1){
+						option--;
+					}
 					break;
 			}
 			break;
@@ -374,7 +462,9 @@ void processSpecialKeys(int key, int x, int y) {
 					
 					break;
 				case pauseMenu:
-					
+					if (option < 3){
+						option++;
+					}
 					break;
 			}
 			break;
