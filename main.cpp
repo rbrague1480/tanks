@@ -144,8 +144,8 @@ void mainMenuSetup(){
 	menuType = mainMenu;
 	disp.font = GLUT_BITMAP_TIMES_ROMAN_24;
 	
-	disp.min.x = 0;
-	disp.max.x = 6;
+	disp.min.x = -1.8;
+	disp.max.x = 7.8;
 	disp.min.y = 0;
 	disp.max.y = 10;
 	option = 1;
@@ -155,8 +155,8 @@ void mainMenuSetup(){
 void gameSetup(){
 	menuType = game;
 	
-	disp.min.x = 0;
-	disp.max.x = 100;
+	disp.min.x = -30;
+	disp.max.x = 130;
 	disp.min.y = 0;
 	disp.max.y = 100;
 	
@@ -514,9 +514,21 @@ int main (int argc, char **argv) {
 	// init GLUT and create Window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+	
+	/*
 	glutInitWindowPosition(1,1);
 	glutInitWindowSize(800,800);
 	glutCreateWindow("Tanks");
+	*/
+	
+	glutGameModeString("1280x800");
+	// enter full screen
+	if (glutGameModeGet(GLUT_GAME_MODE_POSSIBLE))
+		glutEnterGameMode();
+	else {
+		printf("The select mode is not available\n");
+		exit(1);
+	}
 	
 	startUp();
 		
