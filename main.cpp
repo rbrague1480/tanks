@@ -4,9 +4,15 @@
 #include <OpenGL/glu.h>
 #include <Glut/glut.h>
 #include <OpenGL/glext.h>
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#include <vorbis/vorbisfile.h>
 #include "vector.h"
 #include "display.h"
 #include "bullet.h"
+#include "texture.h"
+#include "openal.h"
+
 
 
 using namespace std;
@@ -25,6 +31,8 @@ struct color {
 
 color mainStartColor, mainEndColor, mainOptionsColor, pauseResumeColor, pauseResetColor, pauseMainMenuColor; 
 
+GLuint bulletTexture;
+GLuint tankTexture;
 
 menu menuType = mainMenu;
 float high = 0.0f;
@@ -61,7 +69,9 @@ void turn(){
 	}
 }
 
-
+void collisionDetection(){
+	
+}
 
 void update(){
 	curTime = glutGet(GLUT_ELAPSED_TIME);
@@ -234,7 +244,7 @@ void drawPauseMenu(){
 void renderScene(void) {
 	switch (menuType){
 		case mainMenu:
-			glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			disp.setOrthographicProjection();
 			glLoadIdentity();
 			
@@ -271,14 +281,14 @@ void renderScene(void) {
 		case game:
 			update();
 	
-			glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			disp.setOrthographicProjection();
 			glLoadIdentity();
 	
 			//Functions to draw objects
 			drawTank();
 			if (bull != NULL){
-				bull->drawBullet();
+				bull->drawBullet(bulletTexture);
 			}
 			disp.text(5,90,info,1.0f,1.0f,1.0f);
 			
@@ -288,7 +298,7 @@ void renderScene(void) {
 		case pauseMenu:
 			
 	
-			glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			disp.setOrthographicProjection();
 			glLoadIdentity();
 			
@@ -308,7 +318,7 @@ void renderScene(void) {
 			
 			drawTank();
 			if (bull != NULL){
-				bull->drawBullet();
+				bull->drawBullet(bulletTexture);
 			}
 			disp.text(5,90,info,1.0f,1.0f,1.0f);
 			
@@ -506,6 +516,14 @@ void processSpecialKeys(int key, int x, int y) {
 
 void startUp(){
 	mainMenuSetup();
+	glEnable(GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glClearColor (0.0f, 0.0f, 0.0f, 1.0f);
+	glShadeModel(GL_FLAT);
+
+	
+	load_texture("bullet.png", &bulletTexture);
+	
 	//menuType = game;
 }
 
@@ -514,6 +532,8 @@ int main (int argc, char **argv) {
 	// init GLUT and create Window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+	
+		
 	
 	/*
 	glutInitWindowPosition(1,1);

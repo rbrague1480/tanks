@@ -15,7 +15,7 @@ class bullet {
   	
   	bullet(vector pos, vector vel, float s);
   	void update(float, vector);
-  	void drawBullet();
+  	void drawBullet(GLuint texture);
 };
 
 

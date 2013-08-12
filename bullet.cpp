@@ -1,5 +1,5 @@
 #include "bullet.h"
-
+#include <iostream>
 
 
 bullet::bullet(vector pos, vector vel, float s){
@@ -15,20 +15,23 @@ void bullet::update(float eTime, vector grav){
 }
 
 
-void bullet::drawBullet(){
-	for (int i = 0; i<360; i = i + 45){
-		glLoadIdentity();
-		
-		glTranslatef(position.x, position.y, 0.0f);
-		glRotatef(i, 0.0f, 0.0f, 1.0f);
-		
-		
-		glColor3f(1.0f, 1.0f, 1.0f);
-		glBegin(GL_TRIANGLES);
-			glVertex2f(0, 0);
-			glVertex2f(0, size);
-			glVertex2f(0.7071 * size, 0.7071 * size);
-		glEnd();
-		
-	}
+void bullet::drawBullet(GLuint texture){
+	
+	glLoadIdentity();
+	glTranslatef(position.x, position.y, 0.0f);
+
+	glEnable(GL_TEXTURE_2D);
+	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glBindTexture (GL_TEXTURE_2D, texture);
+	
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex2f(-size, -size);
+		glTexCoord2f(0.0f, 1.0f); glVertex2f(-size, size);
+		glTexCoord2f(1.0f, 1.0f); glVertex2f(size, size);
+		glTexCoord2f(1.0f, 0.0f); glVertex2f(size, -size);
+	glEnd();
+	
+	glDisable(GL_TEXTURE_2D);
+
+	
 }
