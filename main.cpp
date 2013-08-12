@@ -62,10 +62,10 @@ float curTime = 0, timebase = 0, elapsedTime = 0;
 void turn(){
 	if (player == 1){
 		player = 2;
-		c = &tanks[0];
+		c = &tanks[1];
 	}else{
 		player = 1;
-		c = &tanks[1];
+		c = &tanks[0];
 	}
 }
 
@@ -77,7 +77,7 @@ void update(){
 	curTime = glutGet(GLUT_ELAPSED_TIME);
 	elapsedTime = (curTime - timebase)/1000;
 	timebase = glutGet(GLUT_ELAPSED_TIME);
-	sprintf(info,"ANGLE: %.0f   POWER: %.0f", c->angle, c->power);
+	sprintf(info,"ANGLE: %.0f   POWER: %.0f SCORE: %.0f", c->angle, c->power, c->score);
 	if (bull != NULL){
 		bull->update(elapsedTime,gravity);
 		if (bull->position.y < 0 || bull->position.x < -3 || bull->position.x >101){
@@ -179,11 +179,14 @@ void gameSetup(){
 	//tank a;
 	tanks[0].position.x = 10;
 	tanks[0].position.y = 1;
+	tanks[0].score = 0;
 	//tank b;
 	tanks[1].position.x = 90;
 	tanks[1].position.y = 1;
+	tanks[1].score = 0;
 	//tank *c;
 	c = tanks;
+	player = 1;
 }
 
 
@@ -286,7 +289,9 @@ void renderScene(void) {
 			glLoadIdentity();
 	
 			//Functions to draw objects
-			drawTank();
+			tanks[0].drawTank();
+			tanks[1].drawTank();
+			
 			if (bull != NULL){
 				bull->drawBullet(bulletTexture);
 			}
@@ -316,7 +321,9 @@ void renderScene(void) {
 			
 			//drawPauseMenu();
 			
-			drawTank();
+			tanks[0].drawTank();
+			tanks[1].drawTank();
+			
 			if (bull != NULL){
 				bull->drawBullet(bulletTexture);
 			}
@@ -355,7 +362,9 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					
 					break;
 				case game:
-					c->power += 1;
+					if (bull == NULL){
+						c->power += 1;
+					}
 					break;
 				case pauseMenu:
 					
@@ -378,7 +387,9 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					}
 					break;
 				case game:
-					shoot();
+					if (bull == NULL){
+						shoot();
+					}
 					break;
 				case pauseMenu:
 					
@@ -390,8 +401,10 @@ void processNormalKeys(unsigned char key, int x, int y) {
 				case mainMenu:
 					
 					break;
-				case game:					
-					c->angle -= 1;
+				case game:
+					if (bull == NULL){
+						c->angle -= 1;
+					}
 					break;
 				case pauseMenu:
 					
@@ -404,7 +417,9 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					
 					break;
 				case game:
-					c->angle += 1;
+					if (bull == NULL){
+						c->angle += 1;
+					}
 					break;
 				case pauseMenu:
 					
@@ -417,7 +432,9 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					
 					break;
 				case game:
-					c->power -= 1;
+					if (bull == NULL){
+						c->power -= 1;
+					}
 					break;
 				case pauseMenu:
 					
@@ -430,7 +447,9 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					
 					break;
 				case game:
-					shoot();
+					if (bull == NULL){
+						shoot();
+					}
 					break;
 				case pauseMenu:
 					
