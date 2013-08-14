@@ -10,6 +10,7 @@
 class tank {
   public:
   	vector position;
+	vector size;
   	float angle;
   	float power;
   	float score;

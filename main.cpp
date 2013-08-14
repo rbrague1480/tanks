@@ -69,8 +69,45 @@ void turn(){
 	}
 }
 
+
+
 void collisionDetection(){
-	
+	if (bull != NULL){
+		for (int i = 0; i < 2 ; i++){
+			if (bull->position.x - bull->size <= tanks[i].position.x + tanks[i].size.x / 2 && 
+				bull->position.x + bull->size >= tanks[i].position.x - tanks[i].size.x / 2 && 
+				bull->position.y - bull->size <= tanks[i].position.y + tanks[i].size.y / 2 && 
+				bull->position.y + bull->size >= tanks[i].position.y - tanks[i].size.y / 2 ){
+					
+					if (bull->position.x <= tanks[i].position.x + tanks[i].size.x / 2 &&
+						bull->position.x >= tanks[i].position.x - tanks[i].size.x / 2 ||
+						bull->position.y <= tanks[i].position.y + tanks[i].size.y / 2 &&
+						bull->position.y >= tanks[i].position.y - tanks[i].size.y / 2 ){
+							delete bull;
+							bull = NULL;
+							tanks[i].score = tanks[i].score + 1;
+							turn();
+					}else if(vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size ||
+							vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size ||
+							vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size ||
+							vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size){
+								delete bull;
+								bull = NULL;
+								tanks[i].score = tanks[i].score + 1;
+								turn();
+							}
+			
+			}
+		}
+		if(bull != NULL){
+			if (bull->position.y + bull->size < 0 || bull->position.x + bull->size < 0 || bull->position.x - bull->size >100){
+				delete bull;
+				bull = NULL;
+				turn();
+			}
+		}
+		 
+	}
 }
 
 void update(){
@@ -80,11 +117,8 @@ void update(){
 	sprintf(info,"ANGLE: %.0f   POWER: %.0f SCORE: %.0f", c->angle, c->power, c->score);
 	if (bull != NULL){
 		bull->update(elapsedTime,gravity);
-		if (bull->position.y < 0 || bull->position.x < -3 || bull->position.x >101){
-			delete bull;
-			bull = NULL;
-			turn();
-		}
+		collisionDetection();
+		
 	}
 	
 	
@@ -103,43 +137,6 @@ void shoot(){
 
 
 
-
-
-
-
-void drawTank() {
-	for (int i = 0; i<2; i++){
-		c = &tanks[i];
-		
-		glLoadIdentity();
-		glTranslatef(c->position.x, c->position.y, 0.0f);
-		
-		glColor3f(1.0f, 1.0f, 1.0f);
-		glBegin(GL_POLYGON);
-			glVertex2f(-2.0f,-0.5f);
-			glVertex2f( -1.0f,-1.0f);
-			glVertex2f( 1.0f,-1.0f);
-			glVertex2f( 2.0f,-0.5f);
-			glVertex2f( 2.0f, 1.0f);
-			glVertex2f( -2.0f, 1.0f);
-		glEnd();
-		
-		glRotatef(c->angle, 0.0f, 0.0f, -1.0f);
-		glBegin(GL_QUADS);
-			glVertex2f(-3.0f,-0.25f);
-			glVertex2f(-3.0f,0.25f);
-			glVertex2f(0.0f,0.25f);
-			glVertex2f(0.0f,-0.25f);
-		glEnd();
-	
-	}
-	
-	if (player == 1){
-		c = &tanks[0];
-	}else{
-		c = &tanks[1];
-	}
-}
 
 
 void changeSize(int w, int h) {

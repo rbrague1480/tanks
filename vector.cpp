@@ -44,3 +44,39 @@ void vector::operator= (vector a) {
   x = a.x;
   y = a.y;
 }
+
+float vectorDistance (vector a, vector b){
+	float ax = a.x;
+	float ay = a.y;
+	float bx = b.x;
+	float by = b.y;
+	float ans;
+	
+	ans = sqrt((ax-bx) * (ax-bx) + (ay-by) * (ay-by));
+	return(ans);
+}
+
+float vectorDistance (float ax, float ay, vector b){
+	float bx = b.x;
+	float by = b.y;
+	float ans;
+	ans = sqrt((ax-bx) * (ax-bx) + (ay-by) * (ay-by));
+	return(ans);
+	
+}
+
+float vectorDistance (vector a, float bx, float by){
+	float ax = a.x;
+	float ay = a.y;
+	float ans;
+	ans = sqrt((ax-bx) * (ax-bx) + (ay-by) * (ay-by));
+	return(ans);
+	
+}
+
+float vectorDistance (float ax, float ay, float bx, float by){
+	float ans;
+	ans = sqrt((ax-bx) * (ax-bx) + (ay-by) * (ay-by));
+	return(ans);
+	
+}
