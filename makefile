@@ -1,8 +1,8 @@
-run: tank
-	./tank
+run: tanks
+	./tanks
 
-tank: tank.o bullet.o vector.o display.o  main.cpp texture.o sound.o
-	g++ -g main.cpp tank.o bullet.o vector.o display.o texture.o sound.o -o tank -framework OpenGL -framework GLUT -framework OpenAL -lpng -lvorbis -logg -lvorbisfile
+tanks: tank.o bullet.o vector.o display.o  main.cpp texture.o sound.o
+	g++ -g main.cpp tank.o bullet.o vector.o display.o texture.o sound.o -o tanks -framework OpenGL -framework GLUT -framework OpenAL -lpng -lvorbis -logg -lvorbisfile
 
 tank.o: vector.cpp vector.h tank.cpp tank.h
 	g++ -g -c tank.cpp
