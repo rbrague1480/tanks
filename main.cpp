@@ -41,6 +41,9 @@ int player = 1;
 tank tanks[2];
 tank *c;
 char info[50];
+char playerA[20];
+char playerB[20];
+char playerTurn[20];
 char mainStart[13] = "Start Game \0";
 char mainEnd[7] = "Quit \0";
 char mainOptions[10] = "Options \0";
@@ -82,13 +85,21 @@ void collisionDetection(){
 					if (bull->position.x <= tanks[i].position.x + tanks[i].size.x / 2 && bull->position.x >= tanks[i].position.x - tanks[i].size.x / 2 || bull->position.y <= tanks[i].position.y + tanks[i].size.y / 2 && bull->position.y >= tanks[i].position.y - tanks[i].size.y / 2 ){
 						delete bull;
 						bull = NULL;
-						tanks[i].score = tanks[i].score + 1;
+						if (c != &tanks[i]){
+							c->score++;
+						}else if (c == &tanks[i]){
+							c->score--;
+						}
 						turn();
 						return;
 					}else if(vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size){
 						delete bull;
 						bull = NULL;
-						tanks[i].score = tanks[i].score + 1;
+						if (c != &tanks[i]){
+							c->score++;
+						}else if (c == &tanks[i]){
+							c->score--;
+						}
 						turn();
 						return;
 					}
@@ -111,7 +122,10 @@ void update(){
 	curTime = glutGet(GLUT_ELAPSED_TIME);
 	elapsedTime = (curTime - timebase)/1000;
 	timebase = glutGet(GLUT_ELAPSED_TIME);
-	sprintf(info,"ANGLE: %.0f   POWER: %.0f SCORE: %.0f", c->angle, c->power, c->score);
+	sprintf(info,"ANGLE: %.0f   POWER: %.0f", c->angle, c->power);
+	sprintf(playerA,"SCORE: %.0f", tanks[0].score);
+	sprintf(playerB,"SCORE: %.0f", tanks[1].score);
+	sprintf(playerTurn,"PLAYER: %d", player);
 	if (bull != NULL){
 		bull->update(elapsedTime,gravity);
 		collisionDetection();
@@ -171,11 +185,11 @@ void gameSetup(){
 	
 	
 	//tank a;
-	tanks[0].position.x = 10;
+	tanks[0].position.x = 2;
 	tanks[0].position.y = 1;
 	tanks[0].score = 0;
 	//tank b;
-	tanks[1].position.x = 90;
+	tanks[1].position.x = 98;
 	tanks[1].position.y = 1;
 	tanks[1].score = 0;
 	//tank *c;
@@ -222,13 +236,13 @@ void drawPauseMenu(){
 		pauseResumeColor.g = 0.0f;
 		pauseResumeColor.b = 0.0f;
 	}else if(option == 2){
-		pauseResetColor.r = 0.0f;
-		pauseResetColor.g = 1.0f;
+		pauseResetColor.r = 1.0f;
+		pauseResetColor.g = 0.0f;
 		pauseResetColor.b = 0.0f;
 	}else{
-		pauseMainMenuColor.r = 0.0f;
+		pauseMainMenuColor.r = 1.0f;
 		pauseMainMenuColor.g = 0.0f;
-		pauseMainMenuColor.b = 1.0f;
+		pauseMainMenuColor.b = 0.0f;
 	}
 	disp.text(45, 60, pauseResume, pauseResumeColor.r, pauseResumeColor.g, pauseResumeColor.b);
 	disp.text(42, 50, pauseReset, pauseResetColor.r, pauseResetColor.g, pauseResetColor.b);
@@ -290,6 +304,9 @@ void renderScene(void) {
 				bull->drawBullet(bulletTexture);
 			}
 			disp.text(5,90,info,1.0f,1.0f,1.0f);
+			disp.text(5,80,playerA,1.0f,1.0f,1.0f);
+			disp.text(90,80,playerB,1.0f,1.0f,1.0f);
+			disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
 			
 			glutSwapBuffers();
 			
@@ -302,6 +319,10 @@ void renderScene(void) {
 			glLoadIdentity();
 			
 			//Functions to draw objects
+			if (bull != NULL){
+				bull->drawBullet(bulletTexture);
+			}
+			
 			//drawPauseMenu();
 			glLoadIdentity();
 			glColor3f(0.0f, 0.0f, 1.0f);
@@ -318,10 +339,11 @@ void renderScene(void) {
 			tanks[0].drawTank();
 			tanks[1].drawTank();
 			
-			if (bull != NULL){
-				bull->drawBullet(bulletTexture);
-			}
+			
 			disp.text(5,90,info,1.0f,1.0f,1.0f);
+			disp.text(5,80,playerA,1.0f,1.0f,1.0f);
+			disp.text(90,80,playerB,1.0f,1.0f,1.0f);
+			disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
 			
 			drawPauseMenu();
 			
@@ -386,7 +408,18 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					}
 					break;
 				case pauseMenu:
-					
+					switch (option){
+						case 1:
+							menuType = game;
+							timebase = glutGet(GLUT_ELAPSED_TIME);
+							break;
+						case 2:
+							gameSetup();
+							break;
+						case 3:
+							mainMenuSetup();
+							break;
+					}
 					break;
 			}
 			break;
