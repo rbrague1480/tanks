@@ -53,16 +53,17 @@ char pauseReset[15] = "Restart Game \0";
 
 int option = 2;
 
-
-
-
 display disp(0,100,0,100);
 bullet *bull = NULL;
 vector gravity(0,-9.80);
 float curTime = 0, timebase = 0, elapsedTime = 0;
 
+void randomWind(){
+	gravity.x = rand()%11 - 5; 
+}
 
 void turn(){
+	randomWind();
 	if (player == 1){
 		player = 2;
 		c = &tanks[1];
@@ -76,8 +77,6 @@ int randomPosition (){
 	int pos = rand()%14;
 	return(pos);
 }
-
-
 
 void collisionDetection(){
 	if (bull != NULL){
@@ -127,7 +126,7 @@ void update(){
 	curTime = glutGet(GLUT_ELAPSED_TIME);
 	elapsedTime = (curTime - timebase)/1000;
 	timebase = glutGet(GLUT_ELAPSED_TIME);
-	sprintf(info,"ANGLE: %.0f   POWER: %.0f", c->angle, c->power);
+	sprintf(info,"ANGLE: %.0f   POWER: %.0f,   WIND: %.0f", c->angle, c->power, gravity.x);
 	sprintf(playerA,"SCORE: %.0f", tanks[0].score);
 	sprintf(playerB,"SCORE: %.0f", tanks[1].score);
 	sprintf(playerTurn,"PLAYER: %d", player);
@@ -140,7 +139,6 @@ void update(){
 	
 }
 
-
 void shoot(){
 	if (bull == NULL){
 		vector vel, pos, shift;
@@ -150,8 +148,6 @@ void shoot(){
 		bull = new bullet(pos, vel, 1);
 	}
 }
-
-
 
 void mainMenuSetup(){
 	menuType = mainMenu;
@@ -167,6 +163,8 @@ void mainMenuSetup(){
 
 void gameSetup(){
 	menuType = game;
+	
+	randomWind();
 	
 	disp.min.x = -30;
 	disp.max.x = 130;
@@ -191,8 +189,6 @@ void gameSetup(){
 	c = tanks;
 	player = 1;
 }
-
-
 
 void pauseMenuSetup(){
 	menuType = pauseMenu;
@@ -292,8 +288,8 @@ void renderScene(void) {
 			glLoadIdentity();
 	
 			//Functions to draw objects
-			tanks[0].drawTank();
-			tanks[1].drawTank();
+			tanks[0].drawTank(tankTexture);
+			tanks[1].drawTank(tankTexture);
 			
 			if (bull != NULL){
 				bull->drawBullet(bulletTexture);
@@ -331,8 +327,8 @@ void renderScene(void) {
 			
 			//drawPauseMenu();
 			
-			tanks[0].drawTank();
-			tanks[1].drawTank();
+			tanks[0].drawTank(tankTexture);
+			tanks[1].drawTank(tankTexture);
 			
 			
 			disp.text(5,90,info,1.0f,1.0f,1.0f);
@@ -347,9 +343,6 @@ void renderScene(void) {
 			break;
 		}
 }
-
-
-
 
 void processNormalKeys(unsigned char key, int x, int y) {
 	switch(key){
@@ -564,6 +557,7 @@ void startUp(){
 
 	
 	load_texture("bullet.png", &bulletTexture);
+	load_texture("tankGraphicC.png", &tankTexture);
 	
 	//menuType = game;
 }

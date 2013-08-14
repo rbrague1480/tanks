@@ -16,7 +16,7 @@ class tank {
   	float score;
   	tank();
   	tank(vector, float, float);
-  	void drawTank();
+  	void drawTank(GLuint);
   	void tankCollision();
   	
 };
