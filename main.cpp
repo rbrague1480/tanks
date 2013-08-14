@@ -79,26 +79,23 @@ void collisionDetection(){
 				bull->position.y - bull->size <= tanks[i].position.y + tanks[i].size.y / 2 && 
 				bull->position.y + bull->size >= tanks[i].position.y - tanks[i].size.y / 2 ){
 					
-					if (bull->position.x <= tanks[i].position.x + tanks[i].size.x / 2 &&
-						bull->position.x >= tanks[i].position.x - tanks[i].size.x / 2 ||
-						bull->position.y <= tanks[i].position.y + tanks[i].size.y / 2 &&
-						bull->position.y >= tanks[i].position.y - tanks[i].size.y / 2 ){
-							delete bull;
-							bull = NULL;
-							tanks[i].score = tanks[i].score + 1;
-							turn();
-					}else if(vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size ||
-							vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size ||
-							vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size ||
-							vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size){
-								delete bull;
-								bull = NULL;
-								tanks[i].score = tanks[i].score + 1;
-								turn();
-							}
+					if (bull->position.x <= tanks[i].position.x + tanks[i].size.x / 2 && bull->position.x >= tanks[i].position.x - tanks[i].size.x / 2 || bull->position.y <= tanks[i].position.y + tanks[i].size.y / 2 && bull->position.y >= tanks[i].position.y - tanks[i].size.y / 2 ){
+						delete bull;
+						bull = NULL;
+						tanks[i].score = tanks[i].score + 1;
+						turn();
+						return;
+					}else if(vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size){
+						delete bull;
+						bull = NULL;
+						tanks[i].score = tanks[i].score + 1;
+						turn();
+						return;
+					}
 			
 			}
 		}
+		
 		if(bull != NULL){
 			if (bull->position.y + bull->size < 0 || bull->position.x + bull->size < 0 || bull->position.x - bull->size >100){
 				delete bull;
