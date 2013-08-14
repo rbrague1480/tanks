@@ -41,6 +41,9 @@ int player = 1;
 tank tanks[2];
 tank *c;
 char info[50];
+char playerA[20];
+char playerB[20];
+char playerTurn[20];
 char mainStart[13] = "Start Game \0";
 char mainEnd[7] = "Quit \0";
 char mainOptions[10] = "Options \0";
@@ -50,16 +53,17 @@ char pauseReset[15] = "Restart Game \0";
 
 int option = 2;
 
-
-
-
 display disp(0,100,0,100);
 bullet *bull = NULL;
 vector gravity(0,-9.80);
 float curTime = 0, timebase = 0, elapsedTime = 0;
 
+void randomWind(){
+	gravity.x = rand()%11 - 5; 
+}
 
 void turn(){
+	randomWind();
 	if (player == 1){
 		player = 2;
 		c = &tanks[1];
@@ -69,7 +73,10 @@ void turn(){
 	}
 }
 
-
+int randomPosition (){
+	int pos = rand()%14;
+	return(pos);
+}
 
 void collisionDetection(){
 	if (bull != NULL){
@@ -82,13 +89,21 @@ void collisionDetection(){
 					if (bull->position.x <= tanks[i].position.x + tanks[i].size.x / 2 && bull->position.x >= tanks[i].position.x - tanks[i].size.x / 2 || bull->position.y <= tanks[i].position.y + tanks[i].size.y / 2 && bull->position.y >= tanks[i].position.y - tanks[i].size.y / 2 ){
 						delete bull;
 						bull = NULL;
-						tanks[i].score = tanks[i].score + 1;
+						if (c != &tanks[i]){
+							c->score++;
+						}else if (c == &tanks[i]){
+							c->score--;
+						}
 						turn();
 						return;
 					}else if(vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size){
 						delete bull;
 						bull = NULL;
-						tanks[i].score = tanks[i].score + 1;
+						if (c != &tanks[i]){
+							c->score++;
+						}else if (c == &tanks[i]){
+							c->score--;
+						}
 						turn();
 						return;
 					}
@@ -111,7 +126,10 @@ void update(){
 	curTime = glutGet(GLUT_ELAPSED_TIME);
 	elapsedTime = (curTime - timebase)/1000;
 	timebase = glutGet(GLUT_ELAPSED_TIME);
-	sprintf(info,"ANGLE: %.0f   POWER: %.0f SCORE: %.0f", c->angle, c->power, c->score);
+	sprintf(info,"ANGLE: %.0f   POWER: %.0f,   WIND: %.0f", c->angle, c->power, gravity.x);
+	sprintf(playerA,"SCORE: %.0f", tanks[0].score);
+	sprintf(playerB,"SCORE: %.0f", tanks[1].score);
+	sprintf(playerTurn,"PLAYER: %d", player);
 	if (bull != NULL){
 		bull->update(elapsedTime,gravity);
 		collisionDetection();
@@ -120,7 +138,6 @@ void update(){
 	
 	
 }
-
 
 void shoot(){
 	if (bull == NULL){
@@ -131,18 +148,6 @@ void shoot(){
 		bull = new bullet(pos, vel, 1);
 	}
 }
-
-
-
-
-
-void changeSize(int w, int h) {
-	gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
-	
-	
-	
-}
-
 
 void mainMenuSetup(){
 	menuType = mainMenu;
@@ -159,6 +164,8 @@ void mainMenuSetup(){
 void gameSetup(){
 	menuType = game;
 	
+	randomWind();
+	
 	disp.min.x = -30;
 	disp.max.x = 130;
 	disp.min.y = 0;
@@ -171,19 +178,17 @@ void gameSetup(){
 	
 	
 	//tank a;
-	tanks[0].position.x = 10;
+	tanks[0].position.x = randomPosition() + 3;
 	tanks[0].position.y = 1;
 	tanks[0].score = 0;
 	//tank b;
-	tanks[1].position.x = 90;
+	tanks[1].position.x = randomPosition() + 83;
 	tanks[1].position.y = 1;
 	tanks[1].score = 0;
-	//tank *c;
+	
 	c = tanks;
 	player = 1;
 }
-
-
 
 void pauseMenuSetup(){
 	menuType = pauseMenu;
@@ -222,13 +227,13 @@ void drawPauseMenu(){
 		pauseResumeColor.g = 0.0f;
 		pauseResumeColor.b = 0.0f;
 	}else if(option == 2){
-		pauseResetColor.r = 0.0f;
-		pauseResetColor.g = 1.0f;
+		pauseResetColor.r = 1.0f;
+		pauseResetColor.g = 0.0f;
 		pauseResetColor.b = 0.0f;
 	}else{
-		pauseMainMenuColor.r = 0.0f;
+		pauseMainMenuColor.r = 1.0f;
 		pauseMainMenuColor.g = 0.0f;
-		pauseMainMenuColor.b = 1.0f;
+		pauseMainMenuColor.b = 0.0f;
 	}
 	disp.text(45, 60, pauseResume, pauseResumeColor.r, pauseResumeColor.g, pauseResumeColor.b);
 	disp.text(42, 50, pauseReset, pauseResetColor.r, pauseResetColor.g, pauseResetColor.b);
@@ -283,13 +288,16 @@ void renderScene(void) {
 			glLoadIdentity();
 	
 			//Functions to draw objects
-			tanks[0].drawTank();
-			tanks[1].drawTank();
+			tanks[0].drawTank(tankTexture);
+			tanks[1].drawTank(tankTexture);
 			
 			if (bull != NULL){
 				bull->drawBullet(bulletTexture);
 			}
 			disp.text(5,90,info,1.0f,1.0f,1.0f);
+			disp.text(5,80,playerA,1.0f,1.0f,1.0f);
+			disp.text(90,80,playerB,1.0f,1.0f,1.0f);
+			disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
 			
 			glutSwapBuffers();
 			
@@ -302,6 +310,10 @@ void renderScene(void) {
 			glLoadIdentity();
 			
 			//Functions to draw objects
+			if (bull != NULL){
+				bull->drawBullet(bulletTexture);
+			}
+			
 			//drawPauseMenu();
 			glLoadIdentity();
 			glColor3f(0.0f, 0.0f, 1.0f);
@@ -315,13 +327,14 @@ void renderScene(void) {
 			
 			//drawPauseMenu();
 			
-			tanks[0].drawTank();
-			tanks[1].drawTank();
+			tanks[0].drawTank(tankTexture);
+			tanks[1].drawTank(tankTexture);
 			
-			if (bull != NULL){
-				bull->drawBullet(bulletTexture);
-			}
+			
 			disp.text(5,90,info,1.0f,1.0f,1.0f);
+			disp.text(5,80,playerA,1.0f,1.0f,1.0f);
+			disp.text(90,80,playerB,1.0f,1.0f,1.0f);
+			disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
 			
 			drawPauseMenu();
 			
@@ -330,9 +343,6 @@ void renderScene(void) {
 			break;
 		}
 }
-
-
-
 
 void processNormalKeys(unsigned char key, int x, int y) {
 	switch(key){
@@ -386,7 +396,18 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					}
 					break;
 				case pauseMenu:
-					
+					switch (option){
+						case 1:
+							menuType = game;
+							timebase = glutGet(GLUT_ELAPSED_TIME);
+							break;
+						case 2:
+							gameSetup();
+							break;
+						case 3:
+							mainMenuSetup();
+							break;
+					}
 					break;
 			}
 			break;
@@ -536,6 +557,7 @@ void startUp(){
 
 	
 	load_texture("bullet.png", &bulletTexture);
+	load_texture("tankGraphicC.png", &tankTexture);
 	
 	//menuType = game;
 }
@@ -545,7 +567,7 @@ int main (int argc, char **argv) {
 	// init GLUT and create Window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	
+	srand(time(0));
 		
 	
 	/*
@@ -567,7 +589,6 @@ int main (int argc, char **argv) {
 		
 	// register callbacks
 	glutDisplayFunc(renderScene);
-	glutReshapeFunc(changeSize);
 	glutIdleFunc(renderScene);
 	glutKeyboardFunc(processNormalKeys);
 	glutSpecialFunc(processSpecialKeys);
