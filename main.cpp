@@ -20,7 +20,8 @@ using namespace std;
 enum menu{
 	mainMenu,
 	game,
-	pauseMenu
+	pauseMenu,
+	options
 };
 
 struct color {
@@ -29,7 +30,7 @@ struct color {
 	float b;
 };
 
-color mainStartColor, mainEndColor, mainOptionsColor, pauseResumeColor, pauseResetColor, pauseMainMenuColor; 
+color mainStartColor, mainEndColor, mainOptionsColor, pauseResumeColor, pauseResetColor, pauseMainMenuColor, optionTurnsColor, optionReturnColor, optionWindColor; 
 
 GLuint bulletTexture;
 GLuint tankTexture;
@@ -50,16 +51,33 @@ char mainOptions[10] = "Options \0";
 char pauseResume[9] = "Resume \0";
 char pauseMainMenu[12] = "Main Menu \0";
 char pauseReset[15] = "Restart Game \0";
+char optionWind[11] = "Wind: On\0";
+char optionTurns[30] = "Number Of Turns: \0";
+char optionReturn[23] = "Return To Main Menu \0";
 
 int option = 2;
+int wind = 1;
 
 display disp(0,100,0,100);
 bullet *bull = NULL;
 vector gravity(0,-9.80);
 float curTime = 0, timebase = 0, elapsedTime = 0;
 
+void windToggle(){
+	if (wind == 1){
+		wind = 0;
+		sprintf(optionWind, "Wind: Off");
+	}else if (wind == 0){
+		wind = 1;
+		sprintf(optionWind, "Wind: On");
+	}
+}
+
 void randomWind(){
 	gravity.x = rand()%11 - 5; 
+	if (wind == 0){
+		gravity.x = 0;
+	}
 }
 
 void turn(){
@@ -197,6 +215,43 @@ void pauseMenuSetup(){
 	
 }
 
+void optionMenuSetup(){
+	menuType = options;
+	option = 1;
+}
+
+void drawOptions(){
+	
+	optionWindColor.r = 1.0f;
+	optionWindColor.g = 1.0f;
+	optionWindColor.b = 1.0f;
+	optionTurnsColor.r = 1.0f;
+	optionTurnsColor.g = 1.0f;
+	optionTurnsColor.b = 1.0f;
+	optionReturnColor.r = 1.0f;
+	optionReturnColor.g = 1.0f;
+	optionReturnColor.b= 1.0f;
+	
+	if(option == 1){
+		optionWindColor.r = 1.0f;
+		optionWindColor.g = 0.0f;
+		optionWindColor.b = 0.0f;
+	}else if(option == 2){
+		optionTurnsColor.r = 1.0f;
+		optionTurnsColor.g = 0.0f;
+		optionTurnsColor.b = 0.0f;
+	}else{
+		optionReturnColor.r = 1.0f;
+		optionReturnColor.g = 0.0f;
+		optionReturnColor.b = 0.0f;
+	}
+	disp.text(2, 7, optionWind, optionWindColor.r, optionWindColor.g, optionWindColor.b);
+	disp.text(2, 5, optionTurns, optionTurnsColor.r, optionTurnsColor.g, optionTurnsColor.b);
+	disp.text(2, 3, optionReturn, optionReturnColor.r, optionReturnColor.g, optionReturnColor.b);
+	
+	
+}
+
 void drawPauseMenu(){
 	
 	/*
@@ -276,6 +331,16 @@ void renderScene(void) {
 			disp.text(2, 7, mainStart, mainStartColor.r, mainStartColor.g, mainStartColor.b);
 			disp.text(2, 5, mainOptions, mainOptionsColor.r, mainOptionsColor.g, mainOptionsColor.b);
 			disp.text(2, 3, mainEnd, mainEndColor.r, mainEndColor.g, mainEndColor.b);
+			
+			glutSwapBuffers();
+			
+			break;
+		case options:
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			disp.setOrthographicProjection();
+			glLoadIdentity();
+			
+			drawOptions();
 			
 			glutSwapBuffers();
 			
@@ -383,10 +448,23 @@ void processNormalKeys(unsigned char key, int x, int y) {
 							gameSetup();
 							break;
 						case 2:
-							
+							optionMenuSetup();
 							break;
 						case 3:
 							exit(0);
+							break;
+					}
+					break;
+				case options:
+					switch (option){
+						case 1:
+							windToggle();
+							break;
+						case 2:
+							
+							break;
+						case 3:
+							mainMenuSetup();
 							break;
 					}
 					break;
@@ -484,6 +562,11 @@ void processSpecialKeys(int key, int x, int y) {
 						option--;
 					}
 					break;
+				case options:
+					if (option > 1){
+						option--;
+					}
+					break;
 				case game:
 					
 					break;
@@ -502,6 +585,11 @@ void processSpecialKeys(int key, int x, int y) {
 						option++;
 					}
 					break;
+				case options:
+					if (option < 3){
+						option++;
+					}
+					break;
 				case game:
 					
 					break;
@@ -516,9 +604,7 @@ void processSpecialKeys(int key, int x, int y) {
 		case GLUT_KEY_LEFT :
 			switch (menuType) {
 				case mainMenu:
-					if (option > 1){
-						option--;
-					}
+					
 					break;
 				case game:
 					
@@ -532,9 +618,7 @@ void processSpecialKeys(int key, int x, int y) {
 		case GLUT_KEY_RIGHT :
 			switch (menuType) {
 				case mainMenu:
-					if (option > 1){
-						option--;
-					}
+					
 					break;
 				case game:
 					
