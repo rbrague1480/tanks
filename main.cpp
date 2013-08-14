@@ -72,6 +72,11 @@ void turn(){
 	}
 }
 
+int randomPosition (){
+	int pos = rand()%14;
+	return(pos);
+}
+
 
 
 void collisionDetection(){
@@ -148,16 +153,6 @@ void shoot(){
 
 
 
-
-
-void changeSize(int w, int h) {
-	gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
-	
-	
-	
-}
-
-
 void mainMenuSetup(){
 	menuType = mainMenu;
 	disp.font = GLUT_BITMAP_TIMES_ROMAN_24;
@@ -185,14 +180,14 @@ void gameSetup(){
 	
 	
 	//tank a;
-	tanks[0].position.x = 2;
+	tanks[0].position.x = randomPosition() + 3;
 	tanks[0].position.y = 1;
 	tanks[0].score = 0;
 	//tank b;
-	tanks[1].position.x = 98;
+	tanks[1].position.x = randomPosition() + 83;
 	tanks[1].position.y = 1;
 	tanks[1].score = 0;
-	//tank *c;
+	
 	c = tanks;
 	player = 1;
 }
@@ -578,7 +573,7 @@ int main (int argc, char **argv) {
 	// init GLUT and create Window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	
+	srand(time(0));
 		
 	
 	/*
@@ -600,7 +595,6 @@ int main (int argc, char **argv) {
 		
 	// register callbacks
 	glutDisplayFunc(renderScene);
-	glutReshapeFunc(changeSize);
 	glutIdleFunc(renderScene);
 	glutKeyboardFunc(processNormalKeys);
 	glutSpecialFunc(processSpecialKeys);
