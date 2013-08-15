@@ -21,7 +21,8 @@ enum menu{
 	mainMenu,
 	game,
 	pauseMenu,
-	options
+	options,
+	gameEnd
 };
 
 struct color {
@@ -54,9 +55,16 @@ char pauseReset[15] = "Restart Game \0";
 char optionWind[11] = "Wind: On\0";
 char optionTurns[30] = "Number Of Turns: \0";
 char optionReturn[23] = "Return To Main Menu \0";
+char gameEndWinner[19] = "WINNER: Player 1\0";
+
 
 int option = 2;
 int wind = 1;
+int turnNumber;
+int totalTurns = 5;
+int winner = 1;
+
+void gameEndSetup();
 
 display disp(0,100,0,100);
 bullet *bull = NULL;
@@ -88,6 +96,17 @@ void turn(){
 	}else{
 		player = 1;
 		c = &tanks[0];
+		turnNumber++;
+		if (turnNumber > totalTurns){
+			if (tanks[0].score < tanks[1].score){
+				winner = 2;
+			}else if (tanks[0].score > tanks[1].score){
+				winner = 1;
+			}else{
+				winner = 0;
+			}
+			gameEndSetup();
+		}
 	}
 }
 
@@ -144,7 +163,7 @@ void update(){
 	curTime = glutGet(GLUT_ELAPSED_TIME);
 	elapsedTime = (curTime - timebase)/1000;
 	timebase = glutGet(GLUT_ELAPSED_TIME);
-	sprintf(info,"ANGLE: %.0f   POWER: %.0f,   WIND: %.0f", c->angle, c->power, gravity.x);
+	sprintf(info,"ANGLE: %.0f   POWER: %.0f,   WIND: %.0f   TURN: %d", c->angle, c->power, gravity.x, turnNumber);
 	sprintf(playerA,"SCORE: %.0f", tanks[0].score);
 	sprintf(playerB,"SCORE: %.0f", tanks[1].score);
 	sprintf(playerTurn,"PLAYER: %d", player);
@@ -206,12 +225,20 @@ void gameSetup(){
 	
 	c = tanks;
 	player = 1;
+	turnNumber = 1;
+	
 }
 
 void pauseMenuSetup(){
 	menuType = pauseMenu;
 	
 	option = 1;
+	
+}
+
+void gameEndSetup(){
+	menuType = gameEnd;
+	option = 2;
 	
 }
 
@@ -245,6 +272,9 @@ void drawOptions(){
 		optionReturnColor.g = 0.0f;
 		optionReturnColor.b = 0.0f;
 	}
+	
+	sprintf(optionTurns,"Number Of Turns: %d", totalTurns);
+	
 	disp.text(2, 7, optionWind, optionWindColor.r, optionWindColor.g, optionWindColor.b);
 	disp.text(2, 5, optionTurns, optionTurnsColor.r, optionTurnsColor.g, optionTurnsColor.b);
 	disp.text(2, 3, optionReturn, optionReturnColor.r, optionReturnColor.g, optionReturnColor.b);
@@ -293,6 +323,39 @@ void drawPauseMenu(){
 	disp.text(45, 60, pauseResume, pauseResumeColor.r, pauseResumeColor.g, pauseResumeColor.b);
 	disp.text(42, 50, pauseReset, pauseResetColor.r, pauseResetColor.g, pauseResetColor.b);
 	disp.text(43, 40, pauseMainMenu, pauseMainMenuColor.r, pauseMainMenuColor.g, pauseMainMenuColor.b);
+	
+	
+	
+}
+
+void drawGameEnd(){
+	
+	pauseResetColor.r = 1.0f;
+	pauseResetColor.g = 1.0f;
+	pauseResetColor.b = 1.0f;
+	pauseMainMenuColor.r = 1.0f;
+	pauseMainMenuColor.g = 1.0f;
+	pauseMainMenuColor.b= 1.0f;
+	
+	
+	if(option == 2){
+		pauseResetColor.r = 1.0f;
+		pauseResetColor.g = 0.0f;
+		pauseResetColor.b = 0.0f;
+	}else if (option == 3){
+		pauseMainMenuColor.r = 1.0f;
+		pauseMainMenuColor.g = 0.0f;
+		pauseMainMenuColor.b = 0.0f;
+	}
+	disp.text(42, 55, pauseReset, pauseResetColor.r, pauseResetColor.g, pauseResetColor.b);
+	disp.text(43, 45, pauseMainMenu, pauseMainMenuColor.r, pauseMainMenuColor.g, pauseMainMenuColor.b);
+	if (winner == 0){
+		sprintf(gameEndWinner, "WINNER: TIE");
+	}else{
+		sprintf(gameEndWinner, "WINNER: Player %d", winner);
+	}
+	disp.text(40, 10, gameEndWinner, 1, 1, 1);
+	
 	
 	
 	
@@ -367,45 +430,82 @@ void renderScene(void) {
 			glutSwapBuffers();
 			
 			break;
-		case pauseMenu:
+			case pauseMenu:
 			
 	
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			disp.setOrthographicProjection();
-			glLoadIdentity();
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				disp.setOrthographicProjection();
+				glLoadIdentity();
 			
-			//Functions to draw objects
-			if (bull != NULL){
-				bull->drawBullet(bulletTexture);
-			}
+				//Functions to draw objects
+				if (bull != NULL){
+					bull->drawBullet(bulletTexture);
+				}
 			
-			//drawPauseMenu();
-			glLoadIdentity();
-			glColor3f(0.0f, 0.0f, 1.0f);
-			glBegin(GL_QUADS);
-				glVertex2f(40.0f,70.0f);
-				glVertex2f(40.0f,30.0f);
-				glVertex2f(60.0f,30.0f);
-				glVertex2f(60.0f,70.0f);
-			glEnd();
-			
-			
-			//drawPauseMenu();
-			
-			tanks[0].drawTank(tankTexture);
-			tanks[1].drawTank(tankTexture);
+				//drawPauseMenu();
+				glLoadIdentity();
+				glColor3f(0.0f, 0.0f, 1.0f);
+				glBegin(GL_QUADS);
+					glVertex2f(40.0f,70.0f);
+					glVertex2f(40.0f,30.0f);
+					glVertex2f(60.0f,30.0f);
+					glVertex2f(60.0f,70.0f);
+				glEnd();
 			
 			
-			disp.text(5,90,info,1.0f,1.0f,1.0f);
-			disp.text(5,80,playerA,1.0f,1.0f,1.0f);
-			disp.text(90,80,playerB,1.0f,1.0f,1.0f);
-			disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
+				//drawPauseMenu();
 			
-			drawPauseMenu();
+				tanks[0].drawTank(tankTexture);
+				tanks[1].drawTank(tankTexture);
 			
-			glutSwapBuffers();
 			
-			break;
+				disp.text(5,90,info,1.0f,1.0f,1.0f);
+				disp.text(5,80,playerA,1.0f,1.0f,1.0f);
+				disp.text(90,80,playerB,1.0f,1.0f,1.0f);
+				disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
+			
+				drawPauseMenu();
+			
+				glutSwapBuffers();
+			
+				break;
+			case gameEnd:
+		
+
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				disp.setOrthographicProjection();
+				glLoadIdentity();
+		
+				
+		
+				//drawPauseMenu();
+				glLoadIdentity();
+				glColor3f(0.0f, 0.0f, 1.0f);
+				glBegin(GL_QUADS);
+					glVertex2f(40.0f,70.0f);
+					glVertex2f(40.0f,30.0f);
+					glVertex2f(60.0f,30.0f);
+					glVertex2f(60.0f,70.0f);
+				glEnd();
+		
+		
+				//drawPauseMenu();
+		
+				tanks[0].drawTank(tankTexture);
+				tanks[1].drawTank(tankTexture);
+		
+		
+				disp.text(5,90,info,1.0f,1.0f,1.0f);
+				disp.text(5,80,playerA,1.0f,1.0f,1.0f);
+				disp.text(90,80,playerB,1.0f,1.0f,1.0f);
+				disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
+		
+				drawGameEnd();
+		
+				glutSwapBuffers();
+		
+				break;
+			
 		}
 }
 
@@ -431,7 +531,7 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					
 					break;
 				case game:
-					if (bull == NULL){
+					if (bull == NULL && c->power < 100){
 						c->power += 1;
 					}
 					break;
@@ -487,6 +587,16 @@ void processNormalKeys(unsigned char key, int x, int y) {
 							break;
 					}
 					break;
+				case gameEnd:
+					switch (option){
+						case 2:
+							gameSetup();
+							break;
+						case 3:
+							mainMenuSetup();
+							break;
+					}
+					break;
 			}
 			break;
 		case 97:
@@ -495,7 +605,7 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					
 					break;
 				case game:
-					if (bull == NULL){
+					if (bull == NULL && c->angle > 45){
 						c->angle -= 1;
 					}
 					break;
@@ -510,7 +620,7 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					
 					break;
 				case game:
-					if (bull == NULL){
+					if (bull == NULL && c->angle < 135){
 						c->angle += 1;
 					}
 					break;
@@ -525,7 +635,7 @@ void processNormalKeys(unsigned char key, int x, int y) {
 					
 					break;
 				case game:
-					if (bull == NULL){
+					if (bull == NULL && c->power > 0){
 						c->power -= 1;
 					}
 					break;
@@ -567,6 +677,11 @@ void processSpecialKeys(int key, int x, int y) {
 						option--;
 					}
 					break;
+				case gameEnd:
+					if (option > 2){
+						option--;
+					}
+					break;
 				case game:
 					
 					break;
@@ -581,6 +696,11 @@ void processSpecialKeys(int key, int x, int y) {
 		case GLUT_KEY_DOWN :
 			switch (menuType) {
 				case mainMenu:
+					if (option < 3){
+						option++;
+					}
+					break;
+				case gameEnd:
 					if (option < 3){
 						option++;
 					}
@@ -612,6 +732,12 @@ void processSpecialKeys(int key, int x, int y) {
 				case pauseMenu:
 					
 					break;
+				case options:
+					if (option == 2){
+						if (totalTurns > 1 ){
+							totalTurns--;
+						}
+					}
 			}
 			break;
 				
@@ -626,6 +752,10 @@ void processSpecialKeys(int key, int x, int y) {
 				case pauseMenu:
 					
 					break;
+				case options:
+					if (option == 2){
+						totalTurns++;
+					}
 			}
 			break;
 				
