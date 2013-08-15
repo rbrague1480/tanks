@@ -37,6 +37,7 @@ color mainStartColor, mainEndColor, mainOptionsColor, pauseResumeColor, pauseRes
 GLuint bulletTexture;
 GLuint tankTexture;
 
+OpenAL openal;
 
 menu menuType = mainMenu;
 float high = 0.0f;
@@ -59,6 +60,9 @@ char optionTurns[30] = "Number Of Turns: \0";
 char optionReturn[23] = "Return To Main Menu \0";
 char gameEndWinner[19] = "WINNER: Player 1\0";
 
+float frame = 0;
+float startFPSTime = 0;
+float fps = 0;
 
 int option = 2;
 int wind = 1;
@@ -182,6 +186,7 @@ void collisionDetection(){
 							c->score--;
 						}
 						turn();
+						openal.play(ALblowUpTank1);
 						return;
 					}else if(vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x + tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y - tanks[i].size.y / 2) <= bull->size || vectorDistance(bull->position, tanks[i].position.x - tanks[i].size.x / 2, tanks[i].position.y + tanks[i].size.y / 2) <= bull->size){
 						delete bull;
@@ -192,6 +197,7 @@ void collisionDetection(){
 							c->score--;
 						}
 						turn();
+						openal.play(ALblowUpTank1);
 						return;
 					}
 			
@@ -211,9 +217,19 @@ void collisionDetection(){
 
 void update(){
 	curTime = glutGet(GLUT_ELAPSED_TIME);
+	
 	elapsedTime = (curTime - timebase)/1000;
+	
+	frame++;
+	if ((((glutGet(GLUT_ELAPSED_TIME) - startFPSTime))/1000) > 1){
+		fps = frame/((curTime-startFPSTime)/1000);
+		frame = 0;
+		startFPSTime = glutGet(GLUT_ELAPSED_TIME);
+		
+	}
+	
 	timebase = glutGet(GLUT_ELAPSED_TIME);
-	sprintf(info,"ANGLE: %.0f   POWER: %.0f,   WIND: %.0f   TURN: %d", c->angle, c->power, gravity.x, turnNumber);
+	sprintf(info,"ANGLE: %.0f   POWER: %.0f,   WIND: %.0f   TURN: %d   FPS: %.0f", c->angle, c->power, gravity.x, turnNumber, fps);
 	sprintf(playerA,"SCORE: %.0f", tanks[0].score);
 	sprintf(playerB,"SCORE: %.0f", tanks[1].score);
 	sprintf(playerTurn,"PLAYER: %d", player);
@@ -234,7 +250,11 @@ void shoot(){
 		pos = c->position + shift;
 		bull = new bullet(pos, vel, 1);
 	}
-	
+	if (c == &tanks[0]){
+		openal.play(ALtank1);
+	}else{
+		openal.play(ALtank2);
+	}
 }
 
 void mainMenuSetup(){
@@ -268,10 +288,14 @@ void gameSetup(){
 	//tank a;
 	tanks[0].position.x = randomPosition() + 3;
 	tanks[0].position.y = 1;
+	tanks[0].angle = 110;
+	tanks[0].power = 30;
 	tanks[0].score = 0;
 	//tank b;
 	tanks[1].position.x = randomPosition() + 83;
 	tanks[1].position.y = 1;
+	tanks[1].angle = 70;
+	tanks[1].power = 30;
 	tanks[1].score = 0;
 	
 	c = tanks;
@@ -827,6 +851,8 @@ void startUp(){
 	
 	load_texture("bullet.png", &bulletTexture);
 	load_texture("tankGraphicC.png", &tankTexture);
+	
+	openal.init();
 	
 	//openALSetup();
 	//snd_load_file("missleSound.ogg", sound);

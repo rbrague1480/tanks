@@ -8,11 +8,44 @@
 #include <fstream>
 #include <cstring>
 #include <math.h>
-
+#include "sound.h"
 
 #define BUFFER_SIZE (4096)
 
-int snd_load_file(char const * file, ALuint buffer){
+void OpenAL::init(void){
+	device = alcOpenDevice(NULL); // select the "preferred device"
+	if (device) {
+	      context=alcCreateContext(device,NULL);
+	      alcMakeContextCurrent(context);
+	}
+	alGetError();
+	
+	buffers = (ALuint*)malloc(sizeof(ALuint)*numOfBuf);
+	sources = (ALuint*)malloc(sizeof(ALuint)*numOfSources);
+	
+	alGenBuffers(numOfBuf, buffers);
+	
+	//load fire sound
+	snd_load_file("missleSound.ogg", buffers[fireSoundBuf]);
+	snd_load_file("blowUpSound.ogg", buffers[blowUpSoundBuf]);
+	
+	alGenSources(numOfSources,sources);
+	
+	alSourcei(sources[ALtank1], AL_BUFFER, buffers[fireSoundBuf]);
+	alSourcei(sources[ALtank2], AL_BUFFER, buffers[fireSoundBuf]);
+	alSourcei(sources[ALblowUpTank1], AL_BUFFER, buffers[blowUpSoundBuf]);
+	alSourcei(sources[ALblowUpTank2], AL_BUFFER, buffers[blowUpSoundBuf]);
+	
+	
+	
+}
+
+void OpenAL::play(ALSources a){
+	alSourcePlay(sources[a]);
+	
+}
+
+int OpenAL::snd_load_file(const char * file, ALuint buffer){
 	FILE*           oggFile;
 	OggVorbis_File  oggStream;
 	vorbis_info*    vorbisInfo;
@@ -87,130 +120,10 @@ int snd_load_file(char const * file, ALuint buffer){
 	return 0;
 }
 
-/*
-char* loadWAV(const char* fn,int& chan,int& samplerate,int& bps,int& size){
-//Loading of the WAVE file
-
-    FILE *fp = NULL;                                                            //Create FILE pointer for the WAVE file
-    fp=fopen("WAVE/Sound.wav","rb");                                            //Open the WAVE file
-    if (!fp) return endWithError("Failed to open file");                        //Could not open file
-    
-    //Variables to store info about the WAVE file (all of them is not needed for OpenAL)
-    char type[4];
-    DWORD size,chunkSize;
-    short formatType,channels;
-    DWORD sampleRate,avgBytesPerSec;
-    short bytesPerSample,bitsPerSample;
-    DWORD dataSize;
-    
-    //Check that the WAVE file is OK
-    fread(type,sizeof(char),4,fp);                                              //Reads the first bytes in the file
-    if(type[0]!='R' || type[1]!='I' || type[2]!='F' || type[3]!='F')            //Should be "RIFF"
-    return endWithError ("No RIFF");                                            //Not RIFF
-
-    fread(&size, sizeof(DWORD),1,fp);                                           //Continue to read the file
-    fread(type, sizeof(char),4,fp);                                             //Continue to read the file
-    if (type[0]!='W' || type[1]!='A' || type[2]!='V' || type[3]!='E')           //This part should be "WAVE"
-    return endWithError("not WAVE");                                            //Not WAVE
-    
-    fread(type,sizeof(char),4,fp);                                              //Continue to read the file
-    if (type[0]!='f' || type[1]!='m' || type[2]!='t' || type[3]!=' ')           //This part should be "fmt "
-    return endWithError("not fmt ");                                            //Not fmt 
-    
-    //Now we know that the file is a acceptable WAVE file
-    //Info about the WAVE data is now read and stored
-    fread(&chunkSize,sizeof(DWORD),1,fp);
-    fread(&formatType,sizeof(short),1,fp);
-    fread(&channels,sizeof(short),1,fp);
-    fread(&sampleRate,sizeof(DWORD),1,fp);
-    fread(&avgBytesPerSec,sizeof(DWORD),1,fp);
-    fread(&bytesPerSample,sizeof(short),1,fp);
-    fread(&bitsPerSample,sizeof(short),1,fp);
-    
-    fread(type,sizeof(char),4,fp);
-    if (type[0]!='d' || type[1]!='a' || type[2]!='t' || type[3]!='a')           //This part should be "data"
-    return endWithError("Missing DATA");                                        //not data
-    
-    fread(&dataSize,sizeof(DWORD),1,fp);                                        //The size of the sound data is read
-    
-    //Display the info about the WAVE file
-    cout << "Chunk Size: " << chunkSize << "\n";
-    cout << "Format Type: " << formatType << "\n";
-    cout << "Channels: " << channels << "\n";
-    cout << "Sample Rate: " << sampleRate << "\n";
-    cout << "Average Bytes Per Second: " << avgBytesPerSec << "\n";
-    cout << "Bytes Per Sample: " << bytesPerSample << "\n";
-    cout << "Bits Per Sample: " << bitsPerSample << "\n";
-    cout << "Data Size: " << dataSize << "\n";
-    unsigned char* buf= new unsigned char[dataSize];                            //Allocate memory for the sound data
-    cout << fread(buf,sizeof(BYTE),dataSize,fp) << " bytes loaded\n";           //Read the sound data and display the 
-
-                                                                                //number of bytes loaded.
-
-                                                                                //Should be the same as the Data Size if OK
-
-    
-
-}
-*/
-
-bool isBigEndian(){
-        int a=1;
-        return !((char*)&a)[0];
-}
-
-int convertToInt(char* buffer,int len){
-        int a=0;
-        if(!isBigEndian())
-                for(int i=0;i<len;i++)
-                        ((char*)&a)[i]=buffer[i];
-        else
-                for(int i=0;i<len;i++)
-                        ((char*)&a)[3-i]=buffer[i];    
-        return a;
-}
-
-
-
-char* loadWAV(const char* fn,int& chan,int& samplerate,int& bps,int& size){
-        char buffer[4];
-        std::ifstream in(fn,std::ios::binary);
-        in.read(buffer,4);
-        if(strncmp(buffer,"RIFF",4)!=0)
-        {
-                std::cout << "this is not a valid WAVE file"  << std::endl;
-                return NULL;
-        }
-        in.read(buffer,4);
-        in.read(buffer,4);      //WAVE
-        in.read(buffer,4);      //fmt
-        in.read(buffer,4);      //16
-        in.read(buffer,2);      //1
-        in.read(buffer,2);
-        chan=convertToInt(buffer,2);
-        in.read(buffer,4);
-        samplerate=convertToInt(buffer,4);
-        in.read(buffer,4);
-        in.read(buffer,2);
-        in.read(buffer,2);
-        bps=convertToInt(buffer,2);
-        in.read(buffer,4);      //data
-        in.read(buffer,4);
-        size=convertToInt(buffer,4);
-        char* data=new char[size];
-        in.read(data,size);
-		
-	//Display the info about the WAVE file
-	    //cout << "Chunk Size: " << chunkSize << "\n";
-	    printf ("Format Type: %c \n", fn);
-	    printf ("Channels: %d \n", chan);
-	    printf ("Sample Rate: %d \n", samplerate);
-	    printf ("Average Bytes Per Second: %d \n", bps);
-	    //cout << "Bytes Per Sample: " << bytesPerSample << "\n";
-	    //cout << "Bits Per Sample: " << bitsPerSample 
-		
-		
-		
-		
-        return data;   
+OpenAL::~OpenAL(){
+	free(sources);
+	free(buffers);
+	alcMakeContextCurrent(NULL);
+	alcDestroyContext(context);
+	alcCloseDevice(device);
 }
