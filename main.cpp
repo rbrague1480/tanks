@@ -12,8 +12,7 @@
 #include "bullet.h"
 #include "texture.h"
 #include "openal.h"
-
-
+#include "sound.h"
 
 using namespace std;
 
@@ -35,6 +34,7 @@ color mainStartColor, mainEndColor, mainOptionsColor, pauseResumeColor, pauseRes
 
 GLuint bulletTexture;
 GLuint tankTexture;
+
 
 menu menuType = mainMenu;
 float high = 0.0f;
@@ -184,6 +184,7 @@ void shoot(){
 		pos = c->position + shift;
 		bull = new bullet(pos, vel, 1);
 	}
+	
 }
 
 void mainMenuSetup(){
@@ -355,6 +356,8 @@ void drawGameEnd(){
 		sprintf(gameEndWinner, "WINNER: Player %d", winner);
 	}
 	disp.text(40, 10, gameEndWinner, 1, 1, 1);
+	sprintf(playerA,"SCORE: %.0f", tanks[0].score);
+	sprintf(playerB,"SCORE: %.0f", tanks[1].score);
 	
 	
 	
@@ -430,81 +433,81 @@ void renderScene(void) {
 			glutSwapBuffers();
 			
 			break;
-			case pauseMenu:
-			
-	
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				disp.setOrthographicProjection();
-				glLoadIdentity();
-			
-				//Functions to draw objects
-				if (bull != NULL){
-					bull->drawBullet(bulletTexture);
-				}
-			
-				//drawPauseMenu();
-				glLoadIdentity();
-				glColor3f(0.0f, 0.0f, 1.0f);
-				glBegin(GL_QUADS);
-					glVertex2f(40.0f,70.0f);
-					glVertex2f(40.0f,30.0f);
-					glVertex2f(60.0f,30.0f);
-					glVertex2f(60.0f,70.0f);
-				glEnd();
-			
-			
-				//drawPauseMenu();
-			
-				tanks[0].drawTank(tankTexture);
-				tanks[1].drawTank(tankTexture);
-			
-			
-				disp.text(5,90,info,1.0f,1.0f,1.0f);
-				disp.text(5,80,playerA,1.0f,1.0f,1.0f);
-				disp.text(90,80,playerB,1.0f,1.0f,1.0f);
-				disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
-			
-				drawPauseMenu();
-			
-				glutSwapBuffers();
-			
-				break;
-			case gameEnd:
+		case pauseMenu:
 		
 
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				disp.setOrthographicProjection();
-				glLoadIdentity();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			disp.setOrthographicProjection();
+			glLoadIdentity();
 		
-				
+			//Functions to draw objects
+			if (bull != NULL){
+				bull->drawBullet(bulletTexture);
+			}
 		
-				//drawPauseMenu();
-				glLoadIdentity();
-				glColor3f(0.0f, 0.0f, 1.0f);
-				glBegin(GL_QUADS);
-					glVertex2f(40.0f,70.0f);
-					glVertex2f(40.0f,30.0f);
-					glVertex2f(60.0f,30.0f);
-					glVertex2f(60.0f,70.0f);
-				glEnd();
-		
-		
-				//drawPauseMenu();
-		
-				tanks[0].drawTank(tankTexture);
-				tanks[1].drawTank(tankTexture);
+			//drawPauseMenu();
+			glLoadIdentity();
+			glColor3f(0.0f, 0.0f, 1.0f);
+			glBegin(GL_QUADS);
+				glVertex2f(40.0f,70.0f);
+				glVertex2f(40.0f,30.0f);
+				glVertex2f(60.0f,30.0f);
+				glVertex2f(60.0f,70.0f);
+			glEnd();
 		
 		
-				disp.text(5,90,info,1.0f,1.0f,1.0f);
-				disp.text(5,80,playerA,1.0f,1.0f,1.0f);
-				disp.text(90,80,playerB,1.0f,1.0f,1.0f);
-				disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
+			//drawPauseMenu();
 		
-				drawGameEnd();
+			tanks[0].drawTank(tankTexture);
+			tanks[1].drawTank(tankTexture);
 		
-				glutSwapBuffers();
 		
-				break;
+			disp.text(5,90,info,1.0f,1.0f,1.0f);
+			disp.text(5,80,playerA,1.0f,1.0f,1.0f);
+			disp.text(90,80,playerB,1.0f,1.0f,1.0f);
+			disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
+		
+			drawPauseMenu();
+		
+			glutSwapBuffers();
+		
+			break;
+		case gameEnd:
+	
+
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			disp.setOrthographicProjection();
+			glLoadIdentity();
+	
+			
+	
+			//drawPauseMenu();
+			glLoadIdentity();
+			glColor3f(0.0f, 0.0f, 1.0f);
+			glBegin(GL_QUADS);
+				glVertex2f(40.0f,70.0f);
+				glVertex2f(40.0f,30.0f);
+				glVertex2f(60.0f,30.0f);
+				glVertex2f(60.0f,70.0f);
+			glEnd();
+	
+	
+			//drawPauseMenu();
+	
+			tanks[0].drawTank(tankTexture);
+			tanks[1].drawTank(tankTexture);
+	
+	
+			disp.text(5,90,info,1.0f,1.0f,1.0f);
+			disp.text(5,80,playerA,1.0f,1.0f,1.0f);
+			disp.text(90,80,playerB,1.0f,1.0f,1.0f);
+			disp.text(90,90,playerTurn,1.0f,1.0f,1.0f);
+	
+			drawGameEnd();
+	
+			glutSwapBuffers();
+	
+			break;
 			
 		}
 }
@@ -768,12 +771,13 @@ void startUp(){
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor (0.0f, 0.0f, 0.0f, 1.0f);
 	glShadeModel(GL_FLAT);
-
 	
 	load_texture("bullet.png", &bulletTexture);
 	load_texture("tankGraphicC.png", &tankTexture);
 	
-	//menuType = game;
+	//openALSetup();
+	//snd_load_file("missleSound.ogg", sound);
+	
 }
 
 int main (int argc, char **argv) {
