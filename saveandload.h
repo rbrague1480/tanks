@@ -1,0 +1,4 @@
+class gameData {
+	public:
+		gameData();
+}

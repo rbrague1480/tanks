@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <string>
 #include "tank.h"
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -70,6 +72,54 @@ display disp(0,100,0,100);
 bullet *bull = NULL;
 vector gravity(0,-9.80);
 float curTime = 0, timebase = 0, elapsedTime = 0;
+
+void saveFile(){
+	cout << "Saving file\n";
+	ofstream myfile;
+	myfile.open ("optionData.txt");
+	myfile << wind << endl;
+	myfile << totalTurns;
+	myfile.close();
+	cout << "save successful\n";
+	
+}
+
+void loadFile(){
+	ifstream myfile ("optionData.txt");
+	if (myfile.is_open()){
+		for(int x = 0; x < 2; x++){
+			switch(x){
+				case 0:
+					myfile >> wind;
+					switch(wind){
+						case 1:
+							cout << "Wind is On" << endl;
+							sprintf(optionWind, "Wind: On");
+							break;
+						case 0:
+							cout << "Wind is Off" << endl;
+							sprintf(optionWind, "Wind: Off");
+					}
+					break;
+				case 1:
+					myfile >> totalTurns;
+					cout << "Number of turns: " << totalTurns << endl;
+			}
+		} 
+		myfile.close();
+	}else {
+		cout << "Unable to open file\n";
+		cout << "creating opionData.txt...\n";
+		ofstream myfile;
+		myfile.open ("optionData.txt");
+		myfile << "0\n";
+		myfile << "3\n";
+		myfile.close();
+		cout << "create successful\n";
+		
+	}
+	
+}
 
 void windToggle(){
 	if (wind == 1){
@@ -567,6 +617,7 @@ void processNormalKeys(unsigned char key, int x, int y) {
 							
 							break;
 						case 3:
+							saveFile();
 							mainMenuSetup();
 							break;
 					}
@@ -771,6 +822,8 @@ void startUp(){
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor (0.0f, 0.0f, 0.0f, 1.0f);
 	glShadeModel(GL_FLAT);
+	
+	loadFile();
 	
 	load_texture("bullet.png", &bulletTexture);
 	load_texture("tankGraphicC.png", &tankTexture);
